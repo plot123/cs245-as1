@@ -38,7 +38,7 @@ public class PredicatedColumnSumTest {
 
     @Test
     public void testIndexedTable() throws IOException {
-        IndexedRowTable it = new IndexedRowTable(0);
+        IndexedRowTable it = new IndexedRowTable(1);
         it.load(dl);
         assertEquals(49, it.predicatedColumnSum(3, 5));
     }

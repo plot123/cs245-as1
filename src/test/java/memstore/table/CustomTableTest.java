@@ -18,7 +18,7 @@ public class CustomTableTest {
         );
     }
 
-    @Test
+   // @Test
     public void testQueries() throws IOException {
         Table ct = new CustomTable();
         ct.load(dl);
