@@ -2,7 +2,9 @@ package memstore.table;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import memstore.data.ByteFormat;
 import memstore.data.DataLoader;
@@ -113,7 +115,7 @@ public class IndexedRowTable implements Table {
      */
     @Override
     public long columnSum() {
-        int sum =0;
+        long sum =0;
         for(int i =0; i < numRows; i++) {
             sum += getIntField(i, 0);
         }
@@ -129,28 +131,29 @@ public class IndexedRowTable implements Table {
      */
     @Override
     public long predicatedColumnSum(int threshold1, int threshold2) {
-        int sum =0;
-        List<Integer> indexes = new ArrayList<>();
+        long sum =0;
+        Set<Integer> indexes = new HashSet<>();
         List<IntArrayList> values;
-        for (int i =0; i < numRows; i++) {
-            indexes.add(i);
-        }
 
         if (indexColumn == 1) {
-           SortedMap<Integer, IntArrayList> sortedMap = index.tailMap(threshold1+1);
+           SortedMap<Integer, IntArrayList> sortedMap =
+               index.tailMap(threshold1, false);
              values = new ArrayList<>(sortedMap.values());
-            indexes.clear();
             for (IntArrayList intArrayList : values) {
                 indexes.addAll(intArrayList);
             }
-        }
 
-        if (indexColumn == 2) {
-            SortedMap<Integer, IntArrayList> sortedMap = index.headMap(threshold1);
+        } else if (indexColumn == 2) {
+            SortedMap<Integer, IntArrayList> sortedMap =
+                index.headMap(threshold2, false);
             values = new ArrayList<>(sortedMap.values());
-            indexes.clear();
             for (IntArrayList intArrayList : values) {
                 indexes.addAll(intArrayList);
+            }
+
+        } else {
+            for (int i = 0; i < numRows; i++) {
+                indexes.add(i);
             }
         }
 
@@ -172,29 +175,29 @@ public class IndexedRowTable implements Table {
      */
     @Override
     public long predicatedAllColumnsSum(int threshold) {
-        int sum =0;
-        List<Integer> indexes = new ArrayList<>();
-        List<IntArrayList> values;
+        long sum = 0;
+        Set<Integer> indexes = new HashSet<>();
+        Set<IntArrayList> values;
 
         if(indexColumn != 0) {
             for (int i = 0; i < numRows; i++) {
-                indexes.add(i);
+                int col0 = getIntField(i, 0);
+                if(col0 > threshold) {
+                    indexes.add(i);
+                }
             }
         } else {
             SortedMap<Integer, IntArrayList> sortedMap
-                = index.tailMap(threshold+1);
-            values = new ArrayList<>(sortedMap.values());
+                = index.tailMap(threshold, false);
+            values = new HashSet<>(sortedMap.values());
             for (IntArrayList intArrayList : values) {
                 indexes.addAll(intArrayList);
             }
         }
 
         for(int row : indexes) {
-            int col0 = getIntField(row, 0);
-            if(col0 > threshold) {
-                for (int col =0; col < numCols; col++) {
-                    sum += getIntField(row, col);
-                }
+            for (int col =0; col < numCols; col++) {
+                sum += getIntField(row, col);
             }
         }
         return sum;
@@ -219,7 +222,7 @@ public class IndexedRowTable implements Table {
             }
         } else {
             SortedMap<Integer, IntArrayList> sortedMap
-                = index.headMap(threshold);
+                = index.headMap(threshold, false);
             values = new ArrayList<>(sortedMap.values());
             for (IntArrayList intArrayList : values) {
                 indexes.addAll(intArrayList);

@@ -101,7 +101,7 @@ public class ColumnTable implements Table {
      */
     @Override
     public long predicatedAllColumnsSum(int threshold) {
-        int sum =0;
+        long sum = 0;
         for(int row =0; row < numRows; row++) {
             int col0 = getIntField(row, 0);
             if(col0 > threshold) {

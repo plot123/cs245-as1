@@ -82,7 +82,7 @@ public class RowTable implements Table {
      */
     @Override
     public long predicatedColumnSum(int threshold1, int threshold2) {
-        int sum =0;
+        long sum =0;
         for(int i =0; i < numRows; i++) {
             int col1 = getIntField(i, 1);
             int col2 = getIntField(i, 2);
@@ -101,7 +101,7 @@ public class RowTable implements Table {
      */
     @Override
     public long predicatedAllColumnsSum(int threshold) {
-        int sum =0;
+        long sum = 0;
         for(int row =0; row < numRows; row++) {
             int col0 = getIntField(row, 0);
             if(col0 > threshold) {
